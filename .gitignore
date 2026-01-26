@@ -1,0 +1,10 @@
+node_modules
+dist
+.claude
+data
+projects
+repos
+.DS_Store
+.vscode
+test-data-crypto
+.env

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Carrier</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <app-shell></app-shell>
+
+  <!-- Shared Components -->
+  <script type="module" src="/js/components/shared/nav-bar/nav-bar.js"></script>
+  <script type="module" src="/js/components/shared/modal-dialog/modal-dialog.js"></script>
+
+  <!-- Auth Components -->
+  <script type="module" src="/js/components/auth/login-form/login-form.js"></script>
+  <script type="module" src="/js/components/auth/register-form/register-form.js"></script>
+
+  <!-- Dashboard Components -->
+  <script type="module" src="/js/components/dashboard/app-dashboard/app-dashboard.js"></script>
+  <script type="module" src="/js/components/dashboard/app-list/app-list.js"></script>
+  <script type="module" src="/js/components/dashboard/app-card/app-card.js"></script>
+
+  <!-- Application Components -->
+  <script type="module" src="/js/components/applications/app-detail/app-detail.js"></script>
+  <script type="module" src="/js/components/applications/app-logs/app-logs.js"></script>
+  <script type="module" src="/js/components/applications/env-manager/env-manager.js"></script>
+
+  <!-- App Shell (must be last) -->
+  <script type="module" src="/js/components/app-shell/app-shell.js"></script>
+</body>
+</html>

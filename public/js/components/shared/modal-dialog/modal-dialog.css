@@ -1,0 +1,9 @@
+@import '/css/styles.css';
+
+:host {
+  display: none;
+}
+
+:host([open]) {
+  display: block;
+}

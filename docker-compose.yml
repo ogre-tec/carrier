@@ -1,0 +1,39 @@
+services:
+  simple-carrier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simple-carrier
+    ports:
+      - "3000:3000"
+    volumes:
+      - simple-carrier-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - DATABASE_PATH=/app/data/simple-carrier.db
+      # OAuth providers (optional)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL:-http://localhost:3000/api/auth/google/callback}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-}
+      - GITHUB_CALLBACK_URL=${GITHUB_CALLBACK_URL:-http://localhost:3000/api/auth/github/callback}
+      - GITLAB_CLIENT_ID=${GITLAB_CLIENT_ID:-}
+      - GITLAB_CLIENT_SECRET=${GITLAB_CLIENT_SECRET:-}
+      - GITLAB_CALLBACK_URL=${GITLAB_CALLBACK_URL:-http://localhost:3000/api/auth/gitlab/callback}
+      - GITLAB_URL=${GITLAB_URL:-https://gitlab.com}
+      - APPLE_CLIENT_ID=${APPLE_CLIENT_ID:-}
+      - APPLE_CLIENT_SECRET=${APPLE_CLIENT_SECRET:-}
+      - APPLE_CALLBACK_URL=${APPLE_CALLBACK_URL:-http://localhost:3000/api/auth/apple/callback}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  simple-carrier-data:

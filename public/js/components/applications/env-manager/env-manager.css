@@ -1,0 +1,64 @@
+@import '/css/styles.css';
+
+.env-vars-display {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.vars-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.vars-table th,
+.vars-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.vars-table th {
+  background: var(--bg-tertiary);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.vars-table tr:last-child td {
+  border-bottom: none;
+}
+
+.vars-table tr:hover td {
+  background: var(--bg-tertiary);
+}
+
+.var-key {
+  font-family: 'Monaco', 'Menlo', monospace;
+  color: var(--primary-color);
+  font-weight: 500;
+  width: 40%;
+}
+
+.var-value {
+  font-family: 'Monaco', 'Menlo', monospace;
+  color: var(--text-muted);
+}
+
+.no-vars {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 16px;
+  font-size: 13px;
+}
+
+.edit-vars-btn {
+  background: var(--bg-tertiary) !important;
+}
+
+.edit-vars-btn:hover {
+  background: var(--primary-color) !important;
+}

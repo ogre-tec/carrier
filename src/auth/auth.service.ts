@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
@@ -13,7 +13,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersService.findByEmail(email);
-    if (user && await this.usersService.validatePassword(user, password)) {
+    if (user && user.active && await this.usersService.validatePassword(user, password)) {
       return user;
     }
     return null;
@@ -53,6 +53,9 @@ export class AuthService {
     providerId: string;
   }) {
     const user = await this.usersService.findOrCreateFromOAuth(profile);
+    if (!user.active) {
+      throw new UnauthorizedException('Account is inactive');
+    }
     return this.login(user);
   }
 }

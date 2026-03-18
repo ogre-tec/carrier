@@ -26,7 +26,7 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   providerId: string | null;
 
-  @Column({ default: true })
+  @Column({ default: false })
   active: boolean;
 
   @CreateDateColumn()

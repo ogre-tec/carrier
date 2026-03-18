@@ -48,6 +48,11 @@ class RegisterForm extends HTMLElement {
         throw new Error(data.message || 'Registration failed');
       }
 
+      if (!data.access_token) {
+        window.location.hash = '#/login';
+        return;
+      }
+
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
       window.location.hash = '#/dashboard';

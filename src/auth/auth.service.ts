@@ -43,7 +43,10 @@ export class AuthService {
       name: registerDto.name,
     });
 
-    return this.login(user);
+    const loginData = await this.login(user);
+    return {
+      user: loginData.user,
+    }
   }
 
   async validateOAuthUser(profile: {

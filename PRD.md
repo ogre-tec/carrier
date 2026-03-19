@@ -200,7 +200,93 @@ A self-contained web server running inside a Docker container that provides:
 
 ---
 
-## 12. Appendix
+## 12. Implemented Features (2026-03-19)
+
+This section documents the features built and shipped during the 2026-03-19 development session.
+
+### 12.1 User Roles
+
+A `role` field has been added to the `users` table with two possible values: `admin` and `deployer` (default).
+
+- The `UserRole` enum (`admin` | `deployer`) is defined in the `User` entity.
+- Roles are embedded in the JWT payload (`{ sub, email, role }`) and returned by `/api/auth/me` and login responses.
+- A `@Roles()` decorator and `RolesGuard` enforce role-based access at the route level.
+
+### 12.2 Administration Dashboard
+
+A new `#/admin` route is available exclusively to users with the `admin` role. Non-admins are redirected to `#/dashboard`.
+
+The dashboard renders a user management table with the following capabilities:
+
+#### User listing
+All registered users are shown with: display name, email, authentication provider, active status, and role.
+
+#### Activate / Deactivate
+Each non-protected user row has a toggle button to activate or deactivate the account. Inactive users cannot log in.
+
+#### Role change
+An inline `<select>` allows changing a user's role between `admin` and `deployer`. Changes are applied immediately via `PATCH /api/users/:id/role`.
+
+#### Delete user
+Each non-protected row has a Delete button. A confirmation dialog is shown before the request is sent. The user is removed from the table on success via `DELETE /api/users/:id`.
+
+#### API endpoints (all require `admin` role)
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/users` | List all users (includes `protected` flag) |
+| `PATCH` | `/api/users/:id/active` | Activate or deactivate a user |
+| `PATCH` | `/api/users/:id/role` | Change a user's role |
+| `DELETE` | `/api/users/:id` | Hard-delete a user |
+
+### 12.3 Primary Admin Protection
+
+The seeded primary admin account is locked against modifications from the admin dashboard:
+
+- Cannot be deactivated, have its role changed, or be deleted.
+- Protection is enforced at the **service layer** (`assertNotPrimaryAdmin`) in addition to the UI, so it applies regardless of how the API is called.
+- The frontend marks the row with a `primary` badge and renders "Protected" in the action column; the role selector is disabled.
+- The `protected: boolean` flag is included in the `GET /api/users` response; no separate endpoint is needed.
+
+### 12.4 Database Bootstrap (Admin Seed)
+
+`DatabaseSeedService` runs via the `OnApplicationBootstrap` lifecycle hook on every startup:
+
+1. Reads `ADMIN_PASSWORD` from the environment. Skips with a warning if absent.
+2. Checks whether the email `ADMIN_EMAIL` (default `admin@local.host`) already exists.
+3. Creates the user with `role = admin` and `active = true` if not found.
+4. Idempotent — safe to run on every restart.
+
+**Seed environment variables:**
+
+| Variable | Default | Required |
+|---|---|---|
+| `ADMIN_PASSWORD` | — | Yes (seed skipped if absent) |
+| `ADMIN_EMAIL` | `admin@local.host` | No |
+| `ADMIN_NAME` | `Administrator` | No |
+
+### 12.5 Error Handling
+
+#### Backend — `HttpExceptionFilter` (global)
+A NestJS `ExceptionFilter` catches all `HttpException` instances. On a 401 it redirects the browser to `/#/unauthorized-401`; other error codes redirect to `/#/unauthorized-<statusCode>`.
+
+#### Frontend — fetch interceptor (`/js/utils/auth-interceptor.js`)
+Loaded as the first module script in `index.html`. Wraps `window.fetch` globally (no changes required in individual components):
+
+- Only acts on `/api/` calls.
+- On a 401 response: clears `token` and `user` from `localStorage`, then dispatches the `auth:unauthorized` custom event.
+
+#### Frontend — unauthorised views (`app-shell`)
+`AppShell` handles both the `auth:unauthorized` event and hash routes matching `#/unauthorized-*`:
+
+- `#/unauthorized-401` — **"Invalid account"**: account is inactive; user is directed to contact an administrator.
+- Any other `unauthorized-*` — **"Session expired"**: session is no longer valid; user is prompted to log in again.
+
+Both views render a "Go to Login" link.
+
+---
+
+## 13. Appendix
 
 ### 12.1 Glossary
 - **Container**: Isolated runtime environment for applications

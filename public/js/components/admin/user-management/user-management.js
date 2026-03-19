@@ -71,14 +71,19 @@ class UserManagement extends HTMLElement {
             ${user.active ? 'Active' : 'Inactive'}
           </span>
         </td>
-        <td>
+        <td class="actions-cell">
           ${user.protected
             ? '<span class="protected-label">Protected</span>'
             : `<button
                 class="btn ${user.active ? 'btn-deactivate' : 'btn-activate'}"
                 data-id="${user.id}"
                 data-active="${user.active}"
-              >${user.active ? 'Deactivate' : 'Activate'}</button>`
+              >${user.active ? 'Deactivate' : 'Activate'}</button>
+               <button
+                class="btn btn-delete"
+                data-id="${user.id}"
+                data-name="${this.escape(user.name)}"
+              >Delete</button>`
           }
         </td>
       </tr>
@@ -105,6 +110,10 @@ class UserManagement extends HTMLElement {
 
     content.querySelectorAll('select.role-select').forEach(select => {
       select.addEventListener('change', () => this.changeRole(select));
+    });
+
+    content.querySelectorAll('button.btn-delete').forEach(btn => {
+      btn.addEventListener('click', () => this.deleteUser(btn));
     });
   }
 
@@ -174,6 +183,35 @@ class UserManagement extends HTMLElement {
       console.error('Failed to change user role:', error);
     } finally {
       select.disabled = false;
+    }
+  }
+
+  async deleteUser(btn) {
+    const id = btn.dataset.id;
+    const name = btn.dataset.name;
+
+    if (!confirm(`Delete user "${name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    btn.disabled = true;
+
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete user');
+      }
+
+      this.users = this.users.filter(u => u.id !== id);
+      this.renderUsers();
+    } catch (error) {
+      btn.disabled = false;
+      console.error('Failed to delete user:', error);
     }
   }
 

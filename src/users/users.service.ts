@@ -94,6 +94,11 @@ export class UsersService {
     return result;
   }
 
+  async delete(id: string): Promise<void> {
+    await this.assertNotPrimaryAdmin(id);
+    await this.usersRepository.delete(id);
+  }
+
   /** Activation-only method reserved for the seed bootstrap process. */
   async activatePrimaryAdmin(id: string): Promise<void> {
     await this.usersRepository.update(id, { active: true });

@@ -157,6 +157,23 @@ tr:hover td {
   background: #dc2626;
 }
 
+.btn-delete {
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  height: 3rem;
+}
+
 .user-name {
   font-weight: 500;
 }

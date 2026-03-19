@@ -13,7 +13,9 @@ import { WebhooksModule } from './webhooks/webhooks.module';
 import { DeploymentsModule } from './deployments/deployments.module';
 import { DatabaseSeedModule } from './database/database-seed.module';
 
-const rootPath = join(process.env['ROOT_PATH'] || __dirname, '..', 'public');
+const rootPath = process.env['PUBLICS_PATH'] || join(__dirname, 'public')
+
+console.log(rootPath)
 
 @Module({
   imports: [

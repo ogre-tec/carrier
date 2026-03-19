@@ -226,10 +226,10 @@ h3 { font-size: 1.25rem; }
 }
 
 .oauth-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 12px;
   margin-bottom: 24px;
+  justify-content: center;
 }
 
 .oauth-btn {

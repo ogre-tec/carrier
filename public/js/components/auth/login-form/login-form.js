@@ -20,11 +20,14 @@ class LoginForm extends HTMLElement {
     this.shadowRoot.innerHTML = `<style>${STYLES}</style>${TEMPLATE}`;
 
     this.shadowRoot.getElementById('login-form').addEventListener('submit', (e) => this.handleSubmit(e));
-    this.shadowRoot.getElementById('google-btn').addEventListener('click', () => {
-      window.location.href = '/api/auth/google';
-    });
-    this.shadowRoot.getElementById('github-btn').addEventListener('click', () => {
-      window.location.href = '/api/auth/github';
+    const oauthBtns = Array.from(this.shadowRoot.querySelectorAll('.oauth-btn'));
+    oauthBtns.forEach((btn) => {
+      const provider = btn.getAttribute('data-provider');
+      if (provider) {
+        btn.addEventListener('click', () => {
+          window.location.href = `/api/auth/${provider}`;
+        });
+      }
     });
   }
 

@@ -31,6 +31,36 @@ class AppShell extends HTMLElement {
     this.route();
   }
 
+  getUnauthorizedContent(reason) {
+    let data = {
+      title: '',
+      message: '',
+    }
+    switch (reason) {
+      case '401':
+        data = {
+          title: 'Invalid account',
+          message: 'Your account is not active, contact the adimistrator for support.',
+        };
+        break;
+      default:
+        data = {
+          title: 'Session expired',
+          message: 'Your session has expired or is no longer valid. Please log in again.',
+        };
+        break;
+    }
+    return `
+      <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+        <div style="text-align:center;max-width:360px;">
+          <h2 style="margin-bottom:12px;">${data.title}</h2>
+          <p style="color:#64748b;margin-bottom:24px;">${data.message}</p>
+          <a href="#/" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 24px;background:#3b82f6;color:#fff;border-radius:8px;text-decoration:none;font-weight:500;">Go to Login</a>
+        </div>
+      </div>
+    `;
+  }
+
   async loadUserProfile(token) {
     try {
       const res = await fetch('/api/auth/me', {
@@ -74,6 +104,11 @@ class AppShell extends HTMLElement {
         return;
       }
       main.innerHTML = '<register-form></register-form>';
+      return;
+    }
+
+    if (path.startsWith('unauthorized-')) {
+      main.innerHTML = this.getUnauthorizedContent(path.split('-')[1]);
       return;
     }
 

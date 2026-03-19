@@ -11,6 +11,7 @@ import { ApplicationsModule } from './applications/applications.module';
 import { EnvironmentsModule } from './environments/environments.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { DeploymentsModule } from './deployments/deployments.module';
+import { DatabaseSeedModule } from './database/database-seed.module';
 
 const rootPath = join(process.env['ROOT_PATH'] || __dirname, '..', 'public');
 
@@ -28,6 +29,7 @@ const rootPath = join(process.env['ROOT_PATH'] || __dirname, '..', 'public');
     EnvironmentsModule,
     WebhooksModule,
     DeploymentsModule,
+    DatabaseSeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

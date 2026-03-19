@@ -21,6 +21,7 @@ export class UsersService {
       email: createUserDto.email,
       name: createUserDto.name,
       password: hashedPassword,
+      role: createUserDto.role || UserRole.DEPLOYER,
       provider: createUserDto.provider || 'local',
       providerId: createUserDto.providerId || null,
     });

@@ -25,8 +25,13 @@ class NavBar extends HTMLElement {
 
     const navActions = this.shadowRoot.getElementById('nav-actions');
     if (user) {
+      const adminLink = user.role === 'admin'
+        ? `<a href="#/admin" class="nav-link">Admin</a>`
+        : '';
       navActions.innerHTML = `
-        <span class="nav-link">${user.name}</span>
+        <span class="nav-username">${user.name}</span>
+        ${adminLink}
+        <a href="#/dashboard" class="nav-link">Dashboard</a>
         <button class="btn btn-secondary btn-sm" id="logout-btn">Logout</button>
       `;
       navActions.querySelector('#logout-btn').addEventListener('click', () => {

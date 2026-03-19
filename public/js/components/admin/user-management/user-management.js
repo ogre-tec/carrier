@@ -1,0 +1,140 @@
+const base = new URL('.', import.meta.url).href;
+const [htmlRes, cssRes] = await Promise.all([
+  fetch(`${base}user-management.html`),
+  fetch(`${base}user-management.css`),
+]);
+const TEMPLATE = await htmlRes.text();
+const STYLES = await cssRes.text();
+
+class UserManagement extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.users = [];
+  }
+
+  connectedCallback() {
+    this.render();
+    this.loadUsers();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `<style>${STYLES}</style>${TEMPLATE}`;
+  }
+
+  async loadUsers() {
+    const token = localStorage.getItem('token');
+    const content = this.shadowRoot.getElementById('content');
+
+    try {
+      const response = await fetch('/api/users', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to load users');
+      }
+
+      this.users = await response.json();
+      this.renderUsers();
+    } catch (error) {
+      content.innerHTML = `<p class="error-message">Failed to load users. Please try again.</p>`;
+    }
+  }
+
+  renderUsers() {
+    const content = this.shadowRoot.getElementById('content');
+
+    if (this.users.length === 0) {
+      content.innerHTML = `<p style="padding: 20px; color: #64748b;">No users found.</p>`;
+      return;
+    }
+
+    const rows = this.users.map(user => `
+      <tr>
+        <td>
+          <div class="user-name">${this.escape(user.name)}</div>
+          <div class="user-email">${this.escape(user.email)}</div>
+        </td>
+        <td><span class="badge badge-${user.role}">${user.role}</span></td>
+        <td>${this.escape(user.provider)}</td>
+        <td>
+          <span class="badge ${user.active ? 'badge-active' : 'badge-inactive'}">
+            ${user.active ? 'Active' : 'Inactive'}
+          </span>
+        </td>
+        <td>
+          <button
+            class="btn ${user.active ? 'btn-deactivate' : 'btn-activate'}"
+            data-id="${user.id}"
+            data-active="${user.active}"
+          >
+            ${user.active ? 'Deactivate' : 'Activate'}
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+    content.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Provider</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+
+    content.querySelectorAll('button[data-id]').forEach(btn => {
+      btn.addEventListener('click', () => this.toggleActive(btn));
+    });
+  }
+
+  async toggleActive(btn) {
+    const id = btn.dataset.id;
+    const currentActive = btn.dataset.active === 'true';
+    const token = localStorage.getItem('token');
+
+    btn.disabled = true;
+
+    try {
+      const response = await fetch(`/api/users/${id}/active`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ active: !currentActive }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update user');
+      }
+
+      const updated = await response.json();
+      const idx = this.users.findIndex(u => u.id === id);
+      if (idx !== -1) {
+        this.users[idx] = { ...this.users[idx], active: updated.active };
+      }
+      this.renderUsers();
+    } catch (error) {
+      btn.disabled = false;
+      console.error('Failed to toggle user active state:', error);
+    }
+  }
+
+  escape(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+}
+
+customElements.define('user-management', UserManagement);

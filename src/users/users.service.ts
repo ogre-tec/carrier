@@ -68,6 +68,20 @@ export class UsersService {
     return user;
   }
 
+  async findAll(): Promise<Partial<User>[]> {
+    return this.usersRepository.find({
+      select: ['id', 'email', 'name', 'provider', 'active', 'role', 'createdAt'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async setActive(id: string, active: boolean): Promise<Partial<User>> {
+    await this.usersRepository.update(id, { active });
+    const user = await this.findById(id);
+    const { password: _password, ...result } = user!;
+    return result;
+  }
+
   async validatePassword(user: User, password: string): Promise<boolean> {
     if (!user.password) return false;
     return bcrypt.compare(password, user.password);

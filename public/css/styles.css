@@ -9,6 +9,7 @@
   --text-color: #1e293b;
   --text-muted: #64748b;
   --border-color: #e2e8f0;
+  --background-hover-color: #d1d7de;
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --radius: 8px;
@@ -295,6 +296,15 @@ h3 { font-size: 1.25rem; }
   gap: 16px;
 }
 
+.nav-username {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+}
+
 .nav-link {
   color: var(--text-muted);
   text-decoration: none;
@@ -307,6 +317,7 @@ h3 { font-size: 1.25rem; }
 
 .nav-link:hover {
   color: var(--text-color);
+  background-color: var(--background-hover-color);
 }
 
 /* Dashboard */

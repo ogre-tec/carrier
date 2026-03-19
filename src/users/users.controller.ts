@@ -20,4 +20,9 @@ export class UsersController {
   setActive(@Param('id') id: string, @Body('active') active: boolean) {
     return this.usersService.setActive(id, active);
   }
+
+  @Patch(':id/role')
+  setRole(@Param('id') id: string, @Body('role') role: UserRole) {
+    return this.usersService.setRole(id, role);
+  }
 }

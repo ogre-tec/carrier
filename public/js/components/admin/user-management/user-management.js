@@ -56,7 +56,12 @@ class UserManagement extends HTMLElement {
           <div class="user-name">${this.escape(user.name)}</div>
           <div class="user-email">${this.escape(user.email)}</div>
         </td>
-        <td><span class="badge badge-${user.role}">${user.role}</span></td>
+        <td>
+          <select class="role-select" data-id="${user.id}" data-role="${user.role}">
+            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+            <option value="deployer" ${user.role === 'deployer' ? 'selected' : ''}>Deployer</option>
+          </select>
+        </td>
         <td>${this.escape(user.provider)}</td>
         <td>
           <span class="badge ${user.active ? 'badge-active' : 'badge-inactive'}">
@@ -93,6 +98,10 @@ class UserManagement extends HTMLElement {
     content.querySelectorAll('button[data-id]').forEach(btn => {
       btn.addEventListener('click', () => this.toggleActive(btn));
     });
+
+    content.querySelectorAll('select.role-select').forEach(select => {
+      select.addEventListener('change', () => this.changeRole(select));
+    });
   }
 
   async toggleActive(btn) {
@@ -125,6 +134,42 @@ class UserManagement extends HTMLElement {
     } catch (error) {
       btn.disabled = false;
       console.error('Failed to toggle user active state:', error);
+    }
+  }
+
+  async changeRole(select) {
+    const id = select.dataset.id;
+    const previousRole = select.dataset.role;
+    const newRole = select.value;
+    const token = localStorage.getItem('token');
+
+    select.disabled = true;
+
+    try {
+      const response = await fetch(`/api/users/${id}/role`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role: newRole }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update role');
+      }
+
+      const updated = await response.json();
+      const idx = this.users.findIndex(u => u.id === id);
+      if (idx !== -1) {
+        this.users[idx] = { ...this.users[idx], role: updated.role };
+      }
+      select.dataset.role = updated.role;
+    } catch (error) {
+      select.value = previousRole;
+      console.error('Failed to change user role:', error);
+    } finally {
+      select.disabled = false;
     }
   }
 

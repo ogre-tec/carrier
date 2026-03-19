@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
@@ -77,6 +77,13 @@ export class UsersService {
 
   async setActive(id: string, active: boolean): Promise<Partial<User>> {
     await this.usersRepository.update(id, { active });
+    const user = await this.findById(id);
+    const { password: _password, ...result } = user!;
+    return result;
+  }
+
+  async setRole(id: string, role: UserRole): Promise<Partial<User>> {
+    await this.usersRepository.update(id, { role });
     const user = await this.findById(id);
     const { password: _password, ...result } = user!;
     return result;

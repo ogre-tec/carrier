@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -69,14 +69,17 @@ export class UsersService {
     return user;
   }
 
-  async findAll(): Promise<Partial<User>[]> {
-    return this.usersRepository.find({
+  async findAll(): Promise<(Partial<User> & { protected: boolean })[]> {
+    const primaryEmail = process.env.ADMIN_EMAIL || 'admin@local.host';
+    const users = await this.usersRepository.find({
       select: ['id', 'email', 'name', 'provider', 'active', 'role', 'createdAt'],
       order: { createdAt: 'DESC' },
     });
+    return users.map(u => ({ ...u, protected: u.email === primaryEmail }));
   }
 
   async setActive(id: string, active: boolean): Promise<Partial<User>> {
+    await this.assertNotPrimaryAdmin(id);
     await this.usersRepository.update(id, { active });
     const user = await this.findById(id);
     const { password: _password, ...result } = user!;
@@ -84,10 +87,24 @@ export class UsersService {
   }
 
   async setRole(id: string, role: UserRole): Promise<Partial<User>> {
+    await this.assertNotPrimaryAdmin(id);
     await this.usersRepository.update(id, { role });
     const user = await this.findById(id);
     const { password: _password, ...result } = user!;
     return result;
+  }
+
+  /** Activation-only method reserved for the seed bootstrap process. */
+  async activatePrimaryAdmin(id: string): Promise<void> {
+    await this.usersRepository.update(id, { active: true });
+  }
+
+  private async assertNotPrimaryAdmin(id: string): Promise<void> {
+    const primaryEmail = process.env.ADMIN_EMAIL || 'admin@local.host';
+    const user = await this.findById(id);
+    if (user?.email === primaryEmail) {
+      throw new ForbiddenException('The primary admin account cannot be modified');
+    }
   }
 
   async validatePassword(user: User, password: string): Promise<boolean> {

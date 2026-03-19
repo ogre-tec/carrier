@@ -51,13 +51,16 @@ class UserManagement extends HTMLElement {
     }
 
     const rows = this.users.map(user => `
-      <tr>
+      <tr class="${user.protected ? 'row-protected' : ''}">
         <td>
-          <div class="user-name">${this.escape(user.name)}</div>
+          <div class="user-name">
+            ${this.escape(user.name)}
+            ${user.protected ? '<span class="badge-protected">primary</span>' : ''}
+          </div>
           <div class="user-email">${this.escape(user.email)}</div>
         </td>
         <td>
-          <select class="role-select" data-id="${user.id}" data-role="${user.role}">
+          <select class="role-select" data-id="${user.id}" data-role="${user.role}" ${user.protected ? 'disabled' : ''}>
             <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
             <option value="deployer" ${user.role === 'deployer' ? 'selected' : ''}>Deployer</option>
           </select>
@@ -69,13 +72,14 @@ class UserManagement extends HTMLElement {
           </span>
         </td>
         <td>
-          <button
-            class="btn ${user.active ? 'btn-deactivate' : 'btn-activate'}"
-            data-id="${user.id}"
-            data-active="${user.active}"
-          >
-            ${user.active ? 'Deactivate' : 'Activate'}
-          </button>
+          ${user.protected
+            ? '<span class="protected-label">Protected</span>'
+            : `<button
+                class="btn ${user.active ? 'btn-deactivate' : 'btn-activate'}"
+                data-id="${user.id}"
+                data-active="${user.active}"
+              >${user.active ? 'Deactivate' : 'Activate'}</button>`
+          }
         </td>
       </tr>
     `).join('');

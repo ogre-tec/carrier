@@ -28,18 +28,16 @@ export class DatabaseSeedService implements OnApplicationBootstrap {
       return;
     }
 
-    const user = await this.usersService.create({
+    const created = await this.usersService.create({
       email,
       name,
       password,
       role: UserRole.ADMIN,
     });
 
-    // Activate the admin user immediately
-    const created = await this.usersService.findByEmail(email);
-    if (created) {
-      await this.usersService.setActive(created.id, true);
-    }
+    // Activate the admin user immediately — bypass assertNotPrimaryAdmin by
+    // updating directly; the record was just created so active=false by default
+    await this.usersService.activatePrimaryAdmin(created.id);
 
     this.logger.log(`Admin user created: ${email}`);
   }

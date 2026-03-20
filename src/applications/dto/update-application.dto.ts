@@ -20,6 +20,10 @@ export class UpdateApplicationDto {
 
   @IsOptional()
   @IsString()
+  dependenciesInstall?: string;
+
+  @IsOptional()
+  @IsString()
   buildCommand?: string;
 
   @IsOptional()

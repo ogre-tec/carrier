@@ -119,6 +119,26 @@ export class DeploymentRunnerService {
     }
 
     // Build if needed
+    if (application.dependenciesInstall) {
+      await this.deploymentsService.appendLog(deployment.id, `Installing dependencies: ${application.dependenciesInstall}`);
+      
+      try {
+        await this.runCommand(
+          application.dependenciesInstall,
+          deployment.id,
+          variables,
+          PROJECT_PATH,
+        );
+        await this.deploymentsService.appendLog(deployment.id, 'Build completed successfully');
+      } catch (error) {
+        await this.deploymentsService.appendLog(deployment.id, `Build failed: ${error}`);
+        await this.deploymentsService.updateStatus(deployment.id, 'failed');
+        await this.environmentsService.updateStatus(environmentId, 'error');
+        throw new BadRequestException('Install failed');
+      }
+    }
+
+    // Build if needed
     if (application.buildCommand) {
       await this.deploymentsService.appendLog(deployment.id, `Running build command: ${application.buildCommand}`);
       

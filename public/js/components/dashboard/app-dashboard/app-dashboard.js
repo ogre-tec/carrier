@@ -99,6 +99,7 @@ class AppDashboard extends HTMLElement {
       repositoryUrl: this.shadowRoot.getElementById('app-repo-url').value,
       publicSSHKey: this.shadowRoot.getElementById('app-public-ssh-key').value,
       buildCommand: this.shadowRoot.getElementById('app-build-cmd').value,
+      dependenciesInstall: this.shadowRoot.getElementById('app-install-cmd').value,
       startCommand: this.shadowRoot.getElementById('app-start-cmd').value,
     };
 

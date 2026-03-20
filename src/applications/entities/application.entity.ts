@@ -32,6 +32,9 @@ export class Application {
   publicSSHKey: string | null;
 
   @Column({ nullable: true, type: 'text' })
+  dependenciesInstall: string | null;
+
+  @Column({ nullable: true, type: 'text' })
   buildCommand: string | null;
 
   @Column({ nullable: true, type: 'text' })

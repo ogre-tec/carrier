@@ -22,6 +22,10 @@ export class CreateApplicationDto {
 
   @IsOptional()
   @IsString()
+  dependenciesInstall?: string;
+
+  @IsOptional()
+  @IsString()
   buildCommand?: string;
 
   @IsOptional()

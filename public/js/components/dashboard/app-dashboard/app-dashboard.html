@@ -23,23 +23,29 @@
     <div class="form-group">
       <label class="form-label">Type</label>
       <select class="form-input form-select" id="app-type" required>
+        <option value=""></option>
         <option value="repository">Repository</option>
         <option value="binary">Binary</option>
+        <option value="docker">Docker</option>
       </select>
     </div>
-    <div class="form-group" id="repo-url-group">
+    <div class="form-group" id="docker-image-group" style="display:none">
+      <label class="form-label">Docker Image</label>
+      <input type="text" class="form-input" id="app-docker-image" placeholder="nginx:latest">
+    </div>
+    <div class="form-group" id="repo-url-group" style="display:none">
       <label class="form-label">Repository URL</label>
       <input type="url" class="form-input" id="app-repo-url">
     </div>
-    <div class="form-group">
+    <div class="form-group" id="ssh-key-group" style="display:none">
       <label class="form-label">Public SSH key</label>
       <textarea class="form-input" id="app-public-ssh-key" rows="3"></textarea>
     </div>
-    <div class="form-group">
+    <div class="form-group" id="install-cmd-group" style="display:none">
       <label class="form-label">Install Dependencies Command</label>
       <input type="text" class="form-input" id="app-install-cmd" placeholder="npm install">
     </div>
-    <div class="form-group">
+    <div class="form-group" id="build-cmd-group" style="display:none">
       <label class="form-label">Build Command</label>
       <input type="text" class="form-input" id="app-build-cmd" placeholder="npm run build">
     </div>

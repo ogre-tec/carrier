@@ -103,6 +103,12 @@ class AppDetail extends HTMLElement {
               <p>${this.escapeHtml(app.repositoryUrl)}</p>
             </div>
           ` : ''}
+          ${app.dockerImage ? `
+            <div class="form-group">
+              <label class="form-label">Docker Image</label>
+              <p>${this.escapeHtml(app.dockerImage)}</p>
+            </div>
+          ` : ''}
           <div class="form-group">
             <label class="form-label">Build Command</label>
             <p>${this.escapeHtml(app.buildCommand || 'None')}</p>

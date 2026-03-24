@@ -9,12 +9,16 @@ export class CreateApplicationDto {
   @IsString()
   description?: string;
   
-  @IsIn(['repository', 'binary'])
+  @IsIn(['repository', 'binary', 'docker'])
   type: ApplicationType;
 
   @IsOptional()
   @IsString()
   repositoryUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  dockerImage?: string;
 
   @IsOptional()
   @IsString()

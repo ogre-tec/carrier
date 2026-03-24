@@ -25,6 +25,7 @@ export class DeploymentRunnerService {
   ) {}
 
   async start(environmentId: string, user: User): Promise<{ deploymentId: string; port: number }> {
+    const PROJECTS_PATH = process.env['PROJECTS_PATH'] || join(process.cwd(), 'projects');
     const environment = await this.environmentsService.findOne(environmentId, user);
 
     if (environment.status === 'running') {
@@ -39,7 +40,6 @@ export class DeploymentRunnerService {
 
     // Create deployment record
     const deployment = await this.deploymentsService.create(environmentId);
-    await this.deploymentsService.updateStatus(deployment.id, 'building');
 
     // Assign port - use decrypted variables
     const variables = this.environmentsService.getDecryptedVariables(environment);
@@ -47,7 +47,58 @@ export class DeploymentRunnerService {
     if (this.nextPort > 5000) {
       this.nextPort = 4000;
     }
-    const PROJECTS_PATH = process.env['PROJECTS_PATH'] || join(process.cwd(), 'projects');
+
+    if (application.type === 'docker') {
+      await this.deploymentsService.updateStatus(deployment.id, 'building');
+
+      const validProjectName = environment.application.name
+        .replace(/ /g, '_')
+        .toLowerCase()
+        ;
+      const envName = environment.name
+        .replace(/ /g, '_')
+        .toLowerCase()
+        ;
+      const envVars = Object.keys(variables).reduce((acc, key) => {
+        const value = variables[key];
+        if (!Number.isNaN(Number(key)) && !Number.isNaN(Number(value))) {
+          return `${acc} -p ${key}:${value} `
+        }
+        return `${acc} -e ${key}="${value}" `
+      }, '');
+
+      await this.simpleRunCommand(
+        `docker pull ${application.dockerImage}`,
+        variables,
+        PROJECTS_PATH,
+      );
+
+      const dockerCleanCommand = `docker container rm -f ${validProjectName}__${envName}`;
+      await this.simpleRunCommand(
+        dockerCleanCommand,
+        variables,
+        PROJECTS_PATH,
+      );
+    
+      const dockerRunCommand = `docker run -d --restart=unless-stopped ${envVars} --name ${validProjectName}__${envName} ${application.dockerImage}`;
+      console.log(dockerRunCommand)
+      await this.runCommand(
+        dockerRunCommand,
+        deployment.id,
+        variables,
+        PROJECTS_PATH,
+      );
+
+
+      await this.deploymentsService.updateStatus(deployment.id, 'running');
+      await this.environmentsService.updateStatus(environmentId, 'running', port, -1);
+      
+      return {
+        deploymentId: deployment.id,
+        port: this.nextPort,
+      };
+    }
+
     try {
       mkdirSync(PROJECTS_PATH, { recursive: true });
       // await this.simpleRunCommand(`mkdir -p ${PROJECTS_PATH} `, variables);
@@ -89,7 +140,6 @@ export class DeploymentRunnerService {
             variables,
             PROJECTS_PATH,
           );
-          console.log()
           const sshConfigPath = join(process.env.HOME || '~', '.ssh', 'config')
           const content = `Host ${validHostName}
   HostName ${hostName}
@@ -213,9 +263,27 @@ export class DeploymentRunnerService {
 
   async stop(environmentId: string, user: User): Promise<void> {
     const environment = await this.environmentsService.findOne(environmentId, user);
+    const application = await this.applicationsService.findOne(environment.applicationId, user);
 
     if (environment.status !== 'running') {
       throw new BadRequestException('Environment is not running');
+    }
+
+    if (application.type === 'docker') {
+      const validProjectName = environment.application.name
+        .replace(/ /g, '_')
+        .toLowerCase()
+        ;
+      const envName = environment.name
+        .replace(/ /g, '_')
+        .toLowerCase()
+        ;
+      await this.simpleRunCommand(
+        `docker container stop ${validProjectName}__${envName}`,
+        {},
+        '.',
+      );
+      await this.environmentsService.updateStatus(environmentId, 'stopped', null, null);
     }
 
     const running = this.runningProcesses.get(environmentId);

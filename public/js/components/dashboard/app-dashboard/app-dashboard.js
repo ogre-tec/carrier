@@ -34,9 +34,26 @@ class AppDashboard extends HTMLElement {
     });
 
     this.shadowRoot.getElementById('app-type').addEventListener('change', (e) => {
-      const repoGroup = this.shadowRoot.getElementById('repo-url-group');
-      repoGroup.style.display = e.target.value === 'repository' ? 'block' : 'none';
+      this.updateFormVisibility(e.target.value);
     });
+  }
+
+  updateFormVisibility(type) {
+    const show = (id) => this.shadowRoot.getElementById(id).style.display = 'block';
+    const hide = (id) => this.shadowRoot.getElementById(id).style.display = 'none';
+
+    const isDocker = type === 'docker';
+    const isRepo = type === 'repository';
+    const isBinary = type === 'binary';
+
+    isDocker ? show('docker-image-group') : hide('docker-image-group');
+    isRepo   ? show('repo-url-group')     : hide('repo-url-group');
+    isDocker ? hide('ssh-key-group')      : show('ssh-key-group');
+    isDocker ? hide('install-cmd-group')  : show('install-cmd-group');
+    isDocker ? hide('build-cmd-group')    : show('build-cmd-group');
+    isBinary ? hide('ssh-key-group') : {};
+    isBinary ? hide('install-cmd-group') : {};
+    isBinary ? hide('build-cmd-group') : {};
   }
 
   async loadApplications() {
@@ -92,14 +109,16 @@ class AppDashboard extends HTMLElement {
     const token = localStorage.getItem('token');
     const errorEl = this.shadowRoot.getElementById('form-error');
 
+    const type = this.shadowRoot.getElementById('app-type').value;
     const data = {
       name: this.shadowRoot.getElementById('app-name').value,
       description: this.shadowRoot.getElementById('app-description').value,
-      type: this.shadowRoot.getElementById('app-type').value,
-      repositoryUrl: this.shadowRoot.getElementById('app-repo-url').value,
-      publicSSHKey: this.shadowRoot.getElementById('app-public-ssh-key').value,
-      buildCommand: this.shadowRoot.getElementById('app-build-cmd').value,
-      dependenciesInstall: this.shadowRoot.getElementById('app-install-cmd').value,
+      type,
+      repositoryUrl: this.shadowRoot.getElementById('app-repo-url').value || undefined,
+      publicSSHKey: this.shadowRoot.getElementById('app-public-ssh-key').value || undefined,
+      dockerImage: this.shadowRoot.getElementById('app-docker-image').value || undefined,
+      dependenciesInstall: this.shadowRoot.getElementById('app-install-cmd').value || undefined,
+      buildCommand: this.shadowRoot.getElementById('app-build-cmd').value || undefined,
       startCommand: this.shadowRoot.getElementById('app-start-cmd').value,
     };
 

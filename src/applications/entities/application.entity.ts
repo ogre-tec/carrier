@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
-export type ApplicationType = 'repository' | 'binary';
+export type ApplicationType = 'repository' | 'binary' | 'docker';
 
 @Entity('applications')
 export class Application {
@@ -27,6 +27,9 @@ export class Application {
 
   @Column({ nullable: true, type: 'text' })
   repositoryUrl: string | null;
+
+  @Column({ nullable: true, type: 'text' })
+  dockerImage: string | null;
 
   @Column({ nullable: true, type: 'text' })
   publicSSHKey: string | null;

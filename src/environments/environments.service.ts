@@ -36,10 +36,21 @@ export class EnvironmentsService {
     // Verify user owns the application
     await this.applicationsService.findOne(applicationId, user);
 
-    return this.environmentsRepository.find({
+    const envs = await this.environmentsRepository.find({
       where: { applicationId },
       order: { createdAt: 'DESC' },
     });
+
+    if (envs.length > 0) {
+      return envs.map(env => {
+        env.variables = JSON.stringify(
+          this.cryptoService.decryptData(env.variables)
+        );
+        return env;
+      })
+    }
+
+    return [];
   }
 
   async findOne(id: string, user: User): Promise<Environment> {

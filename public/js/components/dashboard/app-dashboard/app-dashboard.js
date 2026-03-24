@@ -55,6 +55,7 @@ class AppDashboard extends HTMLElement {
     isDocker ? show('docker-restart-group') : hide('docker-restart-group');
     if (!isDocker) hide('docker-max-retries-group');
     isRepo   ? show('repo-url-group')     : hide('repo-url-group');
+    isDocker ? hide('start-cmd-group')    : show('start-cmd-group');
     isDocker ? hide('ssh-key-group')      : show('ssh-key-group');
     isDocker ? hide('install-cmd-group')  : show('install-cmd-group');
     isDocker ? hide('build-cmd-group')    : show('build-cmd-group');

@@ -80,7 +80,10 @@ export class DeploymentRunnerService {
         PROJECTS_PATH,
       );
     
-      const dockerRunCommand = `docker run -d --restart=unless-stopped ${envVars} --name ${validProjectName}__${envName} ${application.dockerImage}`;
+      const dockerRestartPolicy = application.dockerRestartPolicy === 'on-failure'
+        ? `${application.dockerRestartPolicy}${application.dockerMaxRetries ? `:${application.dockerMaxRetries}` : ''}`
+        : application.dockerRestartPolicy;
+      const dockerRunCommand = `docker run -d --restart=${dockerRestartPolicy} ${envVars} --name ${validProjectName}__${envName} ${application.dockerImage}`;
       console.log(dockerRunCommand)
       await this.runCommand(
         dockerRunCommand,

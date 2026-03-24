@@ -10,6 +10,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 
 export type ApplicationType = 'repository' | 'binary' | 'docker';
+export type DockerRestartPolicy = 'no' | 'unless-stopped' | 'always' | 'on-failure';
 
 @Entity('applications')
 export class Application {
@@ -30,6 +31,12 @@ export class Application {
 
   @Column({ nullable: true, type: 'text' })
   dockerImage: string | null;
+
+  @Column({ nullable: true, type: 'text' })
+  dockerRestartPolicy: DockerRestartPolicy | null;
+
+  @Column({ nullable: true, type: 'integer' })
+  dockerMaxRetries: number | null;
 
   @Column({ nullable: true, type: 'text' })
   publicSSHKey: string | null;

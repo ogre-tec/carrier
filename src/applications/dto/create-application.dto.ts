@@ -1,5 +1,5 @@
-import { IsString, IsOptional, IsIn } from 'class-validator';
-import type { ApplicationType } from '../entities/application.entity';
+import { IsString, IsOptional, IsIn, IsInt, Min } from 'class-validator';
+import type { ApplicationType, DockerRestartPolicy } from '../entities/application.entity';
 
 export class CreateApplicationDto {
   @IsString()
@@ -19,6 +19,15 @@ export class CreateApplicationDto {
   @IsOptional()
   @IsString()
   dockerImage?: string;
+
+  @IsOptional()
+  @IsIn(['no', 'unless-stopped', 'always', 'on-failure'])
+  dockerRestartPolicy?: DockerRestartPolicy;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  dockerMaxRetries?: number;
 
   @IsOptional()
   @IsString()

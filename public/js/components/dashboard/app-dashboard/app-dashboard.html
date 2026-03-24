@@ -33,6 +33,19 @@
       <label class="form-label">Docker Image</label>
       <input type="text" class="form-input" id="app-docker-image" placeholder="nginx:latest">
     </div>
+    <div class="form-group" id="docker-restart-group" style="display:none">
+      <label class="form-label">Restart Policy</label>
+      <select class="form-input form-select" id="app-docker-restart">
+        <option value="no">No</option>
+        <option value="unless-stopped">Unless Stopped</option>
+        <option value="always">Always</option>
+        <option value="on-failure">On Failure</option>
+      </select>
+    </div>
+    <div class="form-group" id="docker-max-retries-group" style="display:none">
+      <label class="form-label">Max Retries</label>
+      <input type="number" class="form-input" id="app-docker-max-retries" min="1" placeholder="3">
+    </div>
     <div class="form-group" id="repo-url-group" style="display:none">
       <label class="form-label">Repository URL</label>
       <input type="url" class="form-input" id="app-repo-url">

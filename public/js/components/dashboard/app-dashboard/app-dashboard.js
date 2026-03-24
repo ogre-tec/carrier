@@ -36,6 +36,11 @@ class AppDashboard extends HTMLElement {
     this.shadowRoot.getElementById('app-type').addEventListener('change', (e) => {
       this.updateFormVisibility(e.target.value);
     });
+
+    this.shadowRoot.getElementById('app-docker-restart').addEventListener('change', (e) => {
+      const show = e.target.value === 'on-failure';
+      this.shadowRoot.getElementById('docker-max-retries-group').style.display = show ? 'block' : 'none';
+    });
   }
 
   updateFormVisibility(type) {
@@ -46,7 +51,9 @@ class AppDashboard extends HTMLElement {
     const isRepo = type === 'repository';
     const isBinary = type === 'binary';
 
-    isDocker ? show('docker-image-group') : hide('docker-image-group');
+    isDocker ? show('docker-image-group')   : hide('docker-image-group');
+    isDocker ? show('docker-restart-group') : hide('docker-restart-group');
+    if (!isDocker) hide('docker-max-retries-group');
     isRepo   ? show('repo-url-group')     : hide('repo-url-group');
     isDocker ? hide('ssh-key-group')      : show('ssh-key-group');
     isDocker ? hide('install-cmd-group')  : show('install-cmd-group');
@@ -117,6 +124,10 @@ class AppDashboard extends HTMLElement {
       repositoryUrl: this.shadowRoot.getElementById('app-repo-url').value || undefined,
       publicSSHKey: this.shadowRoot.getElementById('app-public-ssh-key').value || undefined,
       dockerImage: this.shadowRoot.getElementById('app-docker-image').value || undefined,
+      dockerRestartPolicy: type === 'docker' ? this.shadowRoot.getElementById('app-docker-restart').value : undefined,
+      dockerMaxRetries: type === 'docker' && this.shadowRoot.getElementById('app-docker-restart').value === 'on-failure'
+        ? parseInt(this.shadowRoot.getElementById('app-docker-max-retries').value, 10) || undefined
+        : undefined,
       dependenciesInstall: this.shadowRoot.getElementById('app-install-cmd').value || undefined,
       buildCommand: this.shadowRoot.getElementById('app-build-cmd').value || undefined,
       startCommand: this.shadowRoot.getElementById('app-start-cmd').value,

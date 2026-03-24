@@ -97,6 +97,14 @@ class AppLogs extends HTMLElement {
       </div>
     `;
 
+    this.shadowRoot.querySelectorAll('.back-link').forEach(lnk => {
+      lnk.addEventListener('click', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+
+        window.history.back();
+      });
+    });
     content.querySelectorAll('.view-logs-btn').forEach(btn => {
       btn.addEventListener('click', () => this.viewFullLogs(btn.dataset.id));
     });

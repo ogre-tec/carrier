@@ -151,6 +151,16 @@ class AppShell extends HTMLElement {
         break;
       }
 
+      case 'status': {
+        const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+        if (!currentUser || currentUser.role !== 'admin') {
+          window.location.hash = '#/dashboard';
+          return;
+        }
+        target = '<system-status></system-status>';
+        break;
+      }
+
       default:
         target = `
           <div class="container" style="padding: 40px 0; text-align: center;">

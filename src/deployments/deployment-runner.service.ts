@@ -24,6 +24,17 @@ export class DeploymentRunnerService {
     private applicationsService: ApplicationsService,
   ) {}
 
+  makeEnvironment(env: Record<string, string>): Record<string, string> {
+    return {
+      PATH: process.env.PATH || '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+      SHELL: process.env.SHELL || '/bin/bash',
+      PWD: process.env.PWD || process.cwd(),
+      USER: process.env.USER || 'carrier',
+      HOME: process.env.HOME || '/home/manager',
+      ...env 
+    }
+  }
+
   async start(environmentId: string, user: User): Promise<{ deploymentId: string; port: number }> {
     const PROJECTS_PATH = process.env['PROJECTS_PATH'] || join(process.cwd(), 'projects');
     const environment = await this.environmentsService.findOne(environmentId, user);
@@ -328,7 +339,7 @@ export class DeploymentRunnerService {
         : command;
       const child = spawn(cmd, camdArgs, {
         // shell: true,
-        env: { ...process.env, ...env },
+        env: this.makeEnvironment(env),
         cwd: pwd || process.cwd(),
       });
 
@@ -365,7 +376,7 @@ export class DeploymentRunnerService {
       console.log([cmd, camdArgs])
       const child = spawn(cmd, camdArgs, {
         // shell: true,
-        env: { ...process.env, ...env },
+        env: this.makeEnvironment(env),
         cwd: pwd || process.cwd(),
       });
 

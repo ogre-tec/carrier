@@ -64,12 +64,12 @@ export class DeploymentRunnerService {
       }, [] as string[]);
 
       await this.simpleRunCommand(
-        `docker pull ${application.dockerImage}`,
+        `docker pull ${application.dockerImage}`.split(' '),
         variables,
         PROJECTS_PATH,
       );
 
-      const dockerCleanCommand = `docker container rm -f ${validProjectName}__${envName}`;
+      const dockerCleanCommand = `docker container rm -f ${validProjectName}__${envName}`.split(' ');
       await this.simpleRunCommand(
         dockerCleanCommand,
         variables,
@@ -353,7 +353,7 @@ export class DeploymentRunnerService {
     });
   }
 
-  private simpleRunCommand(command: string, env: Record<string, string>, pwd?: string): Promise<void> {
+  private simpleRunCommand(command: string | string[], env: Record<string, string>, pwd?: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const [cmd, ...camdArgs] = typeof command === 'string'
         ? [command]

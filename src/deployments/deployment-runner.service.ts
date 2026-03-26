@@ -34,10 +34,6 @@ export class DeploymentRunnerService {
 
     const application = await this.applicationsService.findOne(environment.applicationId, user);
 
-    if (!application.startCommand) {
-      throw new BadRequestException('Application has no start command configured');
-    }
-
     // Create deployment record
     const deployment = await this.deploymentsService.create(environmentId);
 
@@ -100,6 +96,10 @@ export class DeploymentRunnerService {
         deploymentId: deployment.id,
         port: this.nextPort,
       };
+    }
+
+    if (!application.startCommand) {
+      throw new BadRequestException('Application has no start command configured');
     }
 
     try {

@@ -77,14 +77,12 @@ export class DeploymentRunnerService {
       await this.simpleRunCommand(
         `docker pull ${application.dockerImage}`.split(' '),
         variables,
-        PROJECTS_PATH,
       );
 
       const dockerCleanCommand = `docker container rm -f ${validProjectName}__${envName}`.split(' ');
       await this.simpleRunCommand(
         dockerCleanCommand,
         variables,
-        PROJECTS_PATH,
       );
     
       const initialDockerRestartPolicy = application.dockerRestartPolicy === 'no'
@@ -103,12 +101,10 @@ export class DeploymentRunnerService {
         `${validProjectName}__${envName}`,
         `${application.dockerImage}`,
       ];
-      console.log(dockerRunCommand.join(' '))
       await this.runCommand(
         dockerRunCommand,
         deployment.id,
         variables,
-        PROJECTS_PATH,
       );
 
 
@@ -127,7 +123,6 @@ export class DeploymentRunnerService {
 
     try {
       mkdirSync(PROJECTS_PATH, { recursive: true });
-      // await this.simpleRunCommand(`mkdir -p ${PROJECTS_PATH} `, variables);
     } catch {}
     const projectFolder = `${application.id}_${environment.id}`;
     const PROJECT_PATH = join(PROJECTS_PATH, projectFolder);
@@ -186,7 +181,6 @@ export class DeploymentRunnerService {
         );
         await this.deploymentsService.appendLog(deployment.id, 'Build completed successfully');
       } catch (error) {
-        console.log(error)
         await this.deploymentsService.appendLog(deployment.id, `Build failed: ${error}`);
         await this.deploymentsService.updateStatus(deployment.id, 'failed');
         await this.environmentsService.updateStatus(environmentId, 'error');
@@ -362,7 +356,6 @@ export class DeploymentRunnerService {
       });
 
       child.on('error', ( err ) => {
-        console.error(err);
         reject(err)
       })
     });
@@ -373,11 +366,9 @@ export class DeploymentRunnerService {
       const [cmd, ...camdArgs] = typeof command === 'string'
         ? [command]
         : command;
-      console.log([cmd, camdArgs])
       const child = spawn(cmd, camdArgs, {
-        // shell: true,
         env: this.makeEnvironment(env),
-        cwd: pwd || process.cwd(),
+        ...(pwd ? {cwd: pwd} : {}),
       });
 
       child.on('exit', (code) => {
@@ -389,7 +380,6 @@ export class DeploymentRunnerService {
       });
 
       child.on('error', ( err ) => {
-        console.error(err);
         reject(err)
       })
     });

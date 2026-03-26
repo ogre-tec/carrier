@@ -12,6 +12,7 @@ import { EnvironmentsModule } from './environments/environments.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { DeploymentsModule } from './deployments/deployments.module';
 import { DatabaseSeedModule } from './database/database-seed.module';
+import { StatusModule } from './status/status.module';
 
 const rootPath = process.env['PUBLICS_PATH'] || join(__dirname, 'public')
 
@@ -32,6 +33,7 @@ console.log(rootPath)
     WebhooksModule,
     DeploymentsModule,
     DatabaseSeedModule,
+    StatusModule,
   ],
   controllers: [AppController],
   providers: [AppService],

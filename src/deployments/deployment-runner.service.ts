@@ -76,8 +76,11 @@ export class DeploymentRunnerService {
         PROJECTS_PATH,
       );
     
-      const dockerRestartPolicy = application.dockerRestartPolicy === 'on-failure'
-        ? `${application.dockerRestartPolicy}${application.dockerMaxRetries ? `:${application.dockerMaxRetries}` : ''}`
+      const initialDockerRestartPolicy = application.dockerRestartPolicy === 'no'
+        ? null
+        : application.dockerRestartPolicy;
+      const dockerRestartPolicy = initialDockerRestartPolicy === 'on-failure'
+        ? `${initialDockerRestartPolicy}${application.dockerMaxRetries ? `:${application.dockerMaxRetries}` : ''}`
         : application.dockerRestartPolicy;
       const dockerRunCommand = [
         'docker',
@@ -291,7 +294,7 @@ export class DeploymentRunnerService {
         .toLowerCase()
         ;
       await this.simpleRunCommand(
-        `docker container stop ${validProjectName}__${envName}`,
+        `docker container stop ${validProjectName}__${envName}`.split(' '),
         {},
         '.',
       );
@@ -324,7 +327,7 @@ export class DeploymentRunnerService {
         ? [command]
         : command;
       const child = spawn(cmd, camdArgs, {
-        shell: true,
+        // shell: true,
         env: { ...process.env, ...env },
         cwd: pwd || process.cwd(),
       });
@@ -358,8 +361,9 @@ export class DeploymentRunnerService {
       const [cmd, ...camdArgs] = typeof command === 'string'
         ? [command]
         : command;
+      console.log([cmd, camdArgs])
       const child = spawn(cmd, camdArgs, {
-        shell: true,
+        // shell: true,
         env: { ...process.env, ...env },
         cwd: pwd || process.cwd(),
       });

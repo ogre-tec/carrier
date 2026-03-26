@@ -286,9 +286,60 @@ Both views render a "Go to Login" link.
 
 ---
 
-## 13. Appendix
+## 13. Implemented Features (2026-03-25)
 
-### 12.1 Glossary
+This section documents the features built and shipped during the 2026-03-25 development session.
+
+### 13.1 Application — `dependenciesInstall` field
+
+A `dependenciesInstall` nullable text field was added to the `Application` entity, `CreateApplicationDto`, and `UpdateApplicationDto`. It stores the command used to install dependencies before building (e.g. `npm install`).
+
+### 13.2 Application — Docker type
+
+A new `docker` application type was introduced alongside the existing `repository` and `binary` types.
+
+#### Entity changes
+
+| Field | Type | Description |
+|---|---|---|
+| `dockerImage` | `string \| null` | Docker image name and tag (e.g. `nginx:latest`) |
+| `dockerRestartPolicy` | `'no' \| 'unless-stopped' \| 'always' \| 'on-failure' \| null` | Container restart policy |
+| `dockerMaxRetries` | `number \| null` | Max restart attempts; only relevant when policy is `on-failure`, minimum value 1 |
+
+#### Create / Update DTOs
+
+- `type` now accepts `'docker'` in the `@IsIn` validator.
+- `dockerImage`, `dockerRestartPolicy`, and `dockerMaxRetries` are optional fields with appropriate validators (`@IsIn`, `@IsInt`, `@Min(1)`).
+
+#### Create application form
+
+The "New Application" modal adapts its visible fields based on the selected type:
+
+| Field | repository | binary | docker |
+|---|---|---|---|
+| Repository URL | ✓ | — | — |
+| Public SSH Key | ✓ | — | — |
+| Install Dependencies | ✓ | — | — |
+| Build Command | ✓ | — | — |
+| Start Command | ✓ | ✓ | — |
+| Docker Image | — | — | ✓ |
+| Restart Policy | — | — | ✓ |
+| Max Retries | — | — | on-failure only |
+
+### 13.3 Application — Edit settings
+
+The application detail page (`#/applications/:id`) now allows editing all application fields:
+
+- The **Edit** button in the page header activates the Settings tab.
+- The Settings tab renders a fully editable form pre-populated with current values.
+- Field visibility follows the same type-based rules as the create form.
+- Submitting calls `PATCH /api/applications/:id`; errors are shown inline and the submit button is disabled during the request.
+
+---
+
+## 14. Appendix
+
+### 14.1 Glossary
 - **Container**: Isolated runtime environment for applications
 - **OAuth**: Open standard for access delegation
 - **NestJS**: Progressive Node.js framework for server-side applications

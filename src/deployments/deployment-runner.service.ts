@@ -350,9 +350,10 @@ export class DeploymentRunnerService {
         }
       });
 
-      child.on('error', (data) => {
-        reject(data)
-      });
+      child.on('error', ( err ) => {
+        console.error(err);
+        reject(err)
+      })
     });
   }
 
@@ -376,7 +377,10 @@ export class DeploymentRunnerService {
         }
       });
 
-      child.on('error', reject);
+      child.on('error', ( err ) => {
+        console.error(err);
+        reject(err)
+      })
     });
   }
 }

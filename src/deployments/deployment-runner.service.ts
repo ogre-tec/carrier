@@ -58,10 +58,10 @@ export class DeploymentRunnerService {
       const envVars = Object.keys(variables).reduce((acc, key) => {
         const value = variables[key];
         if (!Number.isNaN(Number(key)) && !Number.isNaN(Number(value))) {
-          return `${acc} -p ${key}:${value} `
+          return [...acc, '-p', `${key}:${value}`];
         }
-        return `${acc} -e ${key}="${value}" `
-      }, '');
+        return [...acc, '-e', `${key}="${value}"`];
+      }, [] as string[]);
 
       await this.simpleRunCommand(
         `docker pull ${application.dockerImage}`,
@@ -79,8 +79,17 @@ export class DeploymentRunnerService {
       const dockerRestartPolicy = application.dockerRestartPolicy === 'on-failure'
         ? `${application.dockerRestartPolicy}${application.dockerMaxRetries ? `:${application.dockerMaxRetries}` : ''}`
         : application.dockerRestartPolicy;
-      const dockerRunCommand = `docker run -d --restart=${dockerRestartPolicy} ${envVars} --name ${validProjectName}__${envName} ${application.dockerImage}`;
-      console.log(dockerRunCommand)
+      const dockerRunCommand = [
+        'docker',
+        'run',
+        '-d',
+        ...(dockerRestartPolicy ? ['--restart', `${dockerRestartPolicy}`] : []),
+        ...envVars,
+        '--name',
+        `${validProjectName}__${envName}`,
+        `${application.dockerImage}`,
+      ];
+      console.log(dockerRunCommand.join(' '))
       await this.runCommand(
         dockerRunCommand,
         deployment.id,
@@ -308,10 +317,13 @@ export class DeploymentRunnerService {
     return this.start(environmentId, user);
   }
 
-  private runCommand(command: string, deploymentId: string, env: Record<string, string>, pwd?: string): Promise<string> {
+  private runCommand(command: string | string[], deploymentId: string, env: Record<string, string>, pwd?: string): Promise<string> {
     return new Promise((resolve, reject) => {
       let str = '\n';
-      const child = spawn(command, [], {
+      const [cmd, ...camdArgs] = typeof command === 'string'
+        ? [command]
+        : command;
+      const child = spawn(cmd, camdArgs, {
         shell: true,
         env: { ...process.env, ...env },
         cwd: pwd || process.cwd(),
@@ -343,7 +355,10 @@ export class DeploymentRunnerService {
 
   private simpleRunCommand(command: string, env: Record<string, string>, pwd?: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const child = spawn(command, [], {
+      const [cmd, ...camdArgs] = typeof command === 'string'
+        ? [command]
+        : command;
+      const child = spawn(cmd, camdArgs, {
         shell: true,
         env: { ...process.env, ...env },
         cwd: pwd || process.cwd(),

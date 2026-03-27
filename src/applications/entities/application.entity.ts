@@ -50,6 +50,9 @@ export class Application {
   @Column({ nullable: true, type: 'text' })
   startCommand: string | null;
 
+  @Column({ default: false })
+  exposeViaProxy: boolean;
+
   @Column()
   userId: string;
 

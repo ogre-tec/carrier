@@ -22,6 +22,7 @@ class AppCard extends HTMLElement {
     const description = this.getAttribute('description');
     const type = this.getAttribute('type');
     const created = this.getAttribute('created');
+    const exposed = this.getAttribute('expose-via-proxy') === 'true';
 
     this.shadowRoot.innerHTML = `<style>${STYLES}</style>${TEMPLATE}`;
 
@@ -29,6 +30,7 @@ class AppCard extends HTMLElement {
     this.shadowRoot.getElementById('card-type').textContent = type;
     this.shadowRoot.getElementById('card-description').textContent = description || 'No description';
     this.shadowRoot.getElementById('card-date').textContent = `Created ${new Date(created).toLocaleDateString()}`;
+    this.shadowRoot.getElementById('proxy-badge').style.display = exposed ? 'inline-flex' : 'none';
 
     this.shadowRoot.getElementById('card').addEventListener('click', () => {
       window.location.hash = `#/applications/${id}`;

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsIn, IsInt, Min } from 'class-validator';
+import { IsString, IsOptional, IsIn, IsInt, IsBoolean, Min } from 'class-validator';
 import type { ApplicationType, DockerRestartPolicy } from '../entities/application.entity';
 
 export class CreateApplicationDto {
@@ -44,4 +44,8 @@ export class CreateApplicationDto {
   @IsOptional()
   @IsString()
   startCommand?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  exposeViaProxy?: boolean;
 }

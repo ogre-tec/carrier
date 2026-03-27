@@ -37,6 +37,7 @@ class AppList extends HTMLElement {
         description="${this.escapeAttr(app.description || '')}"
         type="${app.type}"
         created="${app.createdAt}"
+        expose-via-proxy="${app.exposeViaProxy ? 'true' : 'false'}"
       ></app-card>
     `).join('');
   }

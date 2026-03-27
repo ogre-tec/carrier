@@ -148,6 +148,13 @@ class AppDetail extends HTMLElement {
               <input type="text" class="form-input" id="edit-start-cmd" value="${this.escapeHtml(app.startCommand || '')}" placeholder="npm start">
             </div>
 
+            <div class="form-group form-group-checkbox">
+              <label class="checkbox-label">
+                <input type="checkbox" id="edit-expose-proxy" ${app.exposeViaProxy ? 'checked' : ''}>
+                Expose via nginx proxy
+              </label>
+            </div>
+
             <div class="error-message hidden" id="edit-error"></div>
             <div style="display:flex; justify-content:flex-end; margin-top:16px;">
               <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -251,6 +258,7 @@ class AppDetail extends HTMLElement {
       dependenciesInstall: content.querySelector('#edit-install-cmd').value || undefined,
       buildCommand:       content.querySelector('#edit-build-cmd').value || undefined,
       startCommand:       type !== 'docker' ? content.querySelector('#edit-start-cmd').value || undefined : undefined,
+      exposeViaProxy:     content.querySelector('#edit-expose-proxy').checked,
     };
 
     const submitBtn = content.querySelector('#edit-app-form button[type="submit"]');

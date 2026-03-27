@@ -132,6 +132,7 @@ class AppDashboard extends HTMLElement {
       dependenciesInstall: this.shadowRoot.getElementById('app-install-cmd').value || undefined,
       buildCommand: this.shadowRoot.getElementById('app-build-cmd').value || undefined,
       startCommand: this.shadowRoot.getElementById('app-start-cmd').value,
+      exposeViaProxy: this.shadowRoot.getElementById('app-expose-proxy').checked,
     };
 
     try {
